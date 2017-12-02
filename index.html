@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ADO Controller Pytho</title>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+    crossorigin="anonymous"></script>
+    <style>
+    #modal {
+        height: 300px;
+        width: 400px;
+        top: 0;
+        right: 0px;
+        bottom: 0px;
+        left: 0px;
+        position: absolute;
+        margin: auto;
+        background-color: lightgray;
+        padding: 20px;
+        border-radius: 20px;
+    }
+</style>
+</head>
+
+<body>
+    <div>
+        <table id="lista">
+            <thead>
+                <tr>
+                    <th>CustomerId</th>
+                    <th>Name</th>
+                    <th>Country</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div id="modal"></div>
+    </div>
+
+    <script>
+        $(function(){
+            $.get("http://localhost:5002/customers",
+                response => {
+                    if (typeof (response.customers) === "string"){
+                        response = JSON.parse(response.customers);
+                    }else{
+                        response = response.customers;
+                    }
+
+                    let lista = $("#lista tbody").html("");
+                    for (let i = 0; i < response.length; i++) {
+                        const item = response[i];
+                        let hlinha = document.createElement("tr");                        
+                        let tdId = createTd(item.CustomerId);
+                        hlinha.appendChild(tdId);
+                        let tdName = createTd(`${item.FirstName} ${item.LastName}`);
+                        hlinha.appendChild(tdName);
+                        let tdCountry = createTd(item.Country);
+                        hlinha.appendChild(tdCountry);
+
+
+                        let link = document.createElement("a");
+                        link.textContent = "detalhe";
+                        link.className += "link-detalhe";
+
+                        link.setAttribute("customerid", item.CustomerId);
+                        //link.href = `http://localhost:5002/customers/${item.CustomerId}`;
+                        link.href = 'javascript:void(0);';
+                        let tdDetails = createTd(link);
+                        hlinha.appendChild(tdDetails);
+
+                        lista.append(hlinha);
+
+
+
+                        $(".link-detalhe").each(function(){                
+                            $(this).off().on("click", carregaDetalhe);
+                        });
+                    }
+                });
+
+            function carregaDetalhe(event) {
+
+                event.preventDefault();
+                let self = $(this);
+                let customerId = self.attr("customerid");
+
+                $.get("http://localhost:5002/customers/" + customerId, response => {
+
+                    if (typeof (response.data) === "string")
+                        response.data = JSON.parse(response.data);
+
+                    modal.show(response.data[0]);
+
+                });
+            }
+
+            let modal = {
+                show(item) {
+                    modal._fill(item);
+                    $("#modal").show();
+                },
+                hide() {
+                    $("#modal").html("").hide();
+                },
+                _fill(item) {
+                    $("#modal").html("").hide();
+                    let self = $("#modal");
+                    self.append(`<h1>Customer: ${item.FirstName} ${item.LastName}</h1>`);
+                    self.append(`<p>Company ${item.Company}</p>`);
+                    self.append(`<p>${item.Address}, ${item.City}/${item.State} - ${item.Country}</p>`);
+                    self.append(`<p>Phone ${item.Phone} - E-mail ${item.Email}</p>`);
+                    var linkFechar = document.createElement("a");
+                    linkFechar.textContent = "Fechar";
+                    linkFechar.href = "javascript:void(0);";
+                    linkFechar.addEventListener("click", function () {
+                        modal.hide();
+                    });
+                    var div = document.createElement("div");
+                    div.style.textAlign = "center";
+                    div.appendChild(linkFechar);
+                    self.append(div);
+                }
+            };
+
+                // inicializar a modal invisível
+                modal.hide();
+            });
+
+
+
+        function createTd(value) {
+            let td = document.createElement("td");
+
+            if (typeof(value) === "object") {
+                td.appendChild(value);
+            } else if (value) {
+                td.textContent = value;
+            }
+            return td;
+        }
+    </script>
+</body>
+
+</html>
