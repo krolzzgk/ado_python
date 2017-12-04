@@ -11,7 +11,7 @@
     crossorigin="anonymous"></script>
     <style>
     #modal {
-        height: 300px;
+        height: 450px;
         width: 400px;
         top: 0;
         right: 0px;
@@ -35,6 +35,7 @@
                     <th>Name</th>
                     <th>Country</th>
                     <th>Details</th>
+                    <th>Delete</th>				
                 </tr>
             </thead>
             <tbody></tbody>
@@ -65,25 +66,35 @@
 
 
                         let link = document.createElement("a");
+			let link2 = document.createElement("a");
+			link2.textContent = "delete";
                         link.textContent = "detalhe";
+			link2.className += "link-delete";
                         link.className += "link-detalhe";
 
                         link.setAttribute("customerid", item.CustomerId);
+			link2.setAttribute("customerid", item.CustomerId);
+			link2.href = 'javascript:void(0);';
                         //link.href = `http://localhost:5002/customers/${item.CustomerId}`;
                         link.href = 'javascript:void(0);';
                         let tdDetails = createTd(link);
+			let tdDelete = createTd(link2);
+
                         hlinha.appendChild(tdDetails);
+			hlinha.appendChild(tdDelete);
 
                         lista.append(hlinha);
 
-
+			$(".link-delete").each(function(){                
+                            $(this).off().on("click", deletaCliente);
+                        });
 
                         $(".link-detalhe").each(function(){                
                             $(this).off().on("click", carregaDetalhe);
                         });
                     }
                 });
-
+		    
             function carregaDetalhe(event) {
 
                 event.preventDefault();
@@ -111,18 +122,47 @@
                 _fill(item) {
                     $("#modal").html("").hide();
                     let self = $("#modal");
-                    self.append(`<h1>Customer: ${item.FirstName} ${item.LastName}</h1>`);
-                    self.append(`<p>Company ${item.Company}</p>`);
-                    self.append(`<p>${item.Address}, ${item.City}/${item.State} - ${item.Country}</p>`);
-                    self.append(`<p>Phone ${item.Phone} - E-mail ${item.Email}</p>`);
+                    self.append(`<h2>Customer:</h2> <form>
+First Name - <input type='text' name="FirstName" id="txtFirstName" value=${item.FirstName}></form> <br>
+<p>Last Name - ${item.LastName}</p>`);
+                    self.append(`<p>Company - ${item.Company}</p>`);
+                    self.append(`<p>Address - ${item.Address}</p>
+<p>City - ${item.City}</p>
+<p>State - ${item.State}</p>
+<p>Country - ${item.Country}</p>`);
+                    self.append(`<p>Phone - ${item.Phone}</p>
+<p>E-mail ${item.Email}</p>`);
+
+
+                    var linkAtualizar = document.createElement("a");
+                    linkAtualizar.textContent = "Atualizar";                   
+                    linkAtualizar.href = "javascript:void(0);";
+		    linkAtualizar.addEventListener("click", function(){
+			var firstName = $("#txtFirstName").val();
+            		$.ajax({
+			type: 'POST',
+            		url: 'http://localhost:5002/customers_update/' + item.CustomerId,
+            		data: $('form').serialize(),
+            		success: function(response) {
+                	location.reload();
+            	}
+        });
+});
+                    
+
                     var linkFechar = document.createElement("a");
                     linkFechar.textContent = "Fechar";
                     linkFechar.href = "javascript:void(0);";
+
                     linkFechar.addEventListener("click", function () {
                         modal.hide();
                     });
+
+                    
+	
                     var div = document.createElement("div");
                     div.style.textAlign = "center";
+                    div.appendChild(linkAtualizar);
                     div.appendChild(linkFechar);
                     self.append(div);
                 }
@@ -132,7 +172,15 @@
                 modal.hide();
             });
 
+	function deletaCliente() {
+            let self = $(this);
+            let customerId = self.attr("customerid");
 
+            $.post("http://localhost:5002/customers_delete/" + customerId, response => {
+
+                    location.reload();
+                });
+        }
 
         function createTd(value) {
             let td = document.createElement("td");

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ADO Controller Pytho</title>
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+    crossorigin="anonymous"></script>
+<body>
+<form class="form-cadastrar">
+             <h2>Customer Registration </h2>
+             <p>First Name</p><input type="text" id="txtfirstName" name="firstName" placeholder="First Name"><br>
+             <p>Last Name</p><input type="text" id="txtlastName" name="lastName" placeholder="Last Name"><br>
+             <p>Company</p><input type="text" id="txtcompany" name="company" placeholder="Company"><br>
+	     <p>Country</p><input type="text" id="txtCountry" name="country" placeholder="Country"><br>
+            <p>Email</p><input type="text" id="txtEmail" name="email" placeholder="Email"><br>
+             <button type="button" id="register">Register</button>
+         </form>
+</body>
+<script>
+$(function() {
+    $('#register').click(function() {
+ 
+        $.ajax({
+            url: 'http://localhost:5002/customers_register',
+            data: $('form').serialize(),
+            type: 'POST',
+            success: function(response) {
+                alert("Sucesso!")
+            }
+        });
+    });
+});
+</script>
+</html>

@@ -34,18 +34,29 @@ class Customers_Delete(Resource):
             return "iihhhh"
 
 class Customers_Name_Update(Resource):
-	def post(self, customer_id):
+	@app.route("/customers_update/<customer_id>", methods = ["post"])
+	def post(customer_id):
 		conn = db_connect.connect()
-		newName = request.data
+		firstName = request.form['FirstName']
 		sql = "update customers set FirstName=? where CustomerId = ?"
-		conn.execute(sql,(newName,customer_id))
+		conn.execute(sql, firstName, customer_id)
+		return "hiiiii"
+
+class Customers_Register(Resource):
+	@app.route("/customers_register", methods = ["post"])
+	def put():
+		conn = db_connect.connect()
+		firstName = request.form['firstName']
+		lastName = request.form['lastName']
+		company = request.form['company']
+		country = request.form['country']
+		email = request.form['email']
+		sql = "insert into customers(FirstName, LastName, Company, Country, Email) values (?, ?, ?, ?, ?)"
+		conn.execute(sql,(firstName, lastName, company, country, email))
+		return "hiiii"
 		
 api.add_resource(Customers, '/customers')
 api.add_resource(Customers_byId, '/customers/<customer_id>')
-#api.add_resource(Customers_Delete,'/customers_delete/<customer_id>')
-api.add_resource(Customers_Name_Update,'/customers_update/<customer_id>')
-
-
 
 if __name__ == '__main__':
      app.run(port='5002')
